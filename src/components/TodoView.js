@@ -1,14 +1,10 @@
-import { useContext } from "react";
-import { GlobalTodoContext } from "../App";
 import TodoItem from "./Todo";
 
-export default function TodoView() {
-    const state = useContext(GlobalTodoContext)
+export default function TodoView(props) {
     return (
         <div>
-            {console.log("prop items", state)}
             <ul>
-                {state.map((todo, id) => <TodoItem key ={id} todo={todo}></TodoItem>)}
+                {props.todo.map((todo, id) => <TodoItem key ={id} todo={todo} deleteHandler={props}></TodoItem>)}
             </ul>
         </div>
     )

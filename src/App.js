@@ -1,10 +1,9 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { createContext, useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import "./App.css";
 import axios from "../src/components/api/axiosCustom";
 import TodoView from "./components/TodoView";
 
-export const GlobalTodoContext = createContext();
 
 function App() {
   const [state, setState] = useState({
@@ -17,10 +16,11 @@ function App() {
       setState({
         todoList: [...res.data],
       });
-      console.log("res in each", res.data);
+      // console.log("res in each", res.data);
     });
   },[]);
-  const addTodoHandler = () => {
+  const addTodoHandler = (e) => {
+    console.log(e)
     axios
       .post("todo", {
         title: state.title,
@@ -28,10 +28,12 @@ function App() {
       })
       .then((res) => {
         // console.log("response data",res.data, "state list:",...state.todoList);
+        e.target.value = ""
         setState(prevState => ({
           ...prevState,
-          todoList: [...prevState.todoList, res.data]
-        }))
+          todoList: [...prevState.todoList, res.data],
+          [e.target.name]: e.target.value
+        }));
       });
   };
 
@@ -43,8 +45,32 @@ function App() {
   };
  
   const stateButton = () => {
-    console.log("state",state.todoList);
+    console.log("before",state);
+    setState((prevState)=>({
+      ...prevState,
+      title: "",
+      desc:""
+    }))
   }
+  const stateButton2 = () => {
+    console.log("state2", state)
+  }
+  const deleteHandler = (someValue) => {
+    console.log("id", someValue);
+    const refId = state.todoList.findIndex(ele => ele.title === someValue);
+    // state.todoList.splice(refId, 1);
+    state.todoList.splice(refId,1)
+    console.log("spliced array", state.todoList)
+    console.log(refId);
+    setState(prevState => ({
+      ...prevState,
+      todoList: state.todoList,
+      title:'',
+      desc: '',
+    }))
+    console.log("newstate",state.todoList);
+  }
+
   return (
     <div
       className="App list-group-item justify-content-center align-items-center mx-auto"
@@ -86,16 +112,14 @@ function App() {
           }
         </span>
         <h5 className="card text-white bg-dark mb-3">Your Tasks</h5>
-        <GlobalTodoContext.Provider value = {state.todoList}>
           <div>
-            <TodoView todo={state.todoList}></TodoView>
+            <TodoView todo={state.todoList} onDelete={deleteHandler}></TodoView>
           </div>
-        </GlobalTodoContext.Provider>
       </div>
       <h6 className="card text-dark bg-warning py-1 mb-0">
         Copyright 2022, all rights reserved &copy;
       </h6>
-      {!state && (
+      {state && (
         <button
           className="btn mx-1 mb-3"
           onClick={stateButton}
@@ -104,7 +128,14 @@ function App() {
           show state
         </button>
       )}
-      {/* {console.log("state:", state)} */}
+      <button
+          className="btn mx-1 mb-3"
+          onClick={stateButton2}
+          style={{ borderRadius: "50px" }}
+        >
+          show state2
+        </button>
+      {/* {console.log("state:", state.todoList)} */}
     </div>
   );
 }
